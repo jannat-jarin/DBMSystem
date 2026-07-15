@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Patient History | UMC{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Patient History</h1>
+  <p>{{ student.get_full_name|default:student.username }}</p>
+</div>
+
+<div class="card" style="margin-bottom:18px;">
+  <div class="section-title">Patient Summary</div>
+  <p><strong>Username:</strong> {{ student.username }}</p>
+  <p><strong>Email:</strong> {{ student.email|default:"Not set" }}</p>
+</div>
+
+{% if appointments %}
+  <div class="card-grid">
+    {% for appointment in appointments %}
+      <div class="card" style="margin-bottom:0;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+          <div>
+            <div class="badge-status badge-{{ appointment.status }}">{{ appointment.get_status_display }}</div>
+            <h3 style="margin-top:10px;">{{ appointment.date }} at {{ appointment.time|time:"g:i A" }}</h3>
+            <p style="color:var(--muted);margin-top:4px;">{{ appointment.reason|default:"No reason provided" }}</p>
+          </div>
+          <div style="text-align:right;">
+            <div style="color:var(--muted);">Symptoms</div>
+            <div>{{ appointment.symptoms|default:"None" }}</div>
+          </div>
+        </div>
+
+        {% if appointment.prescription_item %}
+          <div style="margin-top:16px;padding:14px;border-radius:14px;background:rgba(43,138,120,.06);">
+            <strong>Prescription available</strong>
+            <p style="margin-top:6px;color:var(--muted);">Diagnosis: {{ appointment.prescription_item.diagnosis }}</p>
+            <p style="color:var(--muted);">Medicines: {{ appointment.prescription_item.medicines|truncatechars:120 }}</p>
+            <p style="margin-top:8px;">
+              <a href="{% url 'prescription_pdf' appointment.prescription_item.id %}" class="btn btn-outline btn-sm">Download PDF</a>
+            </p>
+          </div>
+        {% else %}
+          <div style="margin-top:16px;color:var(--muted);">No prescription written yet.</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card">
+    <p style="color:var(--muted);">No appointments found for this patient.</p>
+  </div>
+{% endif %}
+{% endblock %}

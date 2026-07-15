@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Admin Reports – UMC{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>📊 Admin Reports</h1>
+  <p>Overview of medical center activity.</p>
+</div>
+
+<!-- Summary Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-num">{{ total_appointments }}</div>
+    <div class="stat-lbl">Total Appointments</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ total_prescriptions }}</div>
+    <div class="stat-lbl">Prescriptions Written</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ total_students }}</div>
+    <div class="stat-lbl">Students</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ total_doctors }}</div>
+    <div class="stat-lbl">Doctors</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+  <!-- Monthly Chart -->
+  <div class="card">
+    <div class="section-title">📅 Monthly Appointments (Last 12 months)</div>
+    <canvas id="monthlyChart" height="220"></canvas>
+  </div>
+
+  <!-- Status Breakdown -->
+  <div class="card">
+    <div class="section-title">🔄 Appointment Status Breakdown</div>
+    <canvas id="statusChart" height="220"></canvas>
+  </div>
+
+  <!-- Top Doctors -->
+  <div class="card" style="grid-column:1/-1;">
+    <div class="section-title">🏆 Top Doctors by Appointments</div>
+    {% for d in top_doctors %}
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+      <div style="font-weight:700;color:var(--muted);min-width:24px;">{{ forloop.counter }}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;">{{ d.doctor__username }}</div>
+        <div style="background:rgba(43,138,120,.15);border-radius:999px;height:8px;margin-top:4px;">
+          <div style="background:var(--primary);border-radius:999px;height:8px;width:{% widthratio d.count top_doctors.0.count 100 %}%;transition:width .4s;"></div>
+        </div>
+      </div>
+      <div style="font-weight:700;color:var(--primary);min-width:40px;text-align:right;">{{ d.count }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+const teal = '#2b8a78';
+const accent = '#7fd8c8';
+
+// Monthly
+const monthlyData = {
+  labels: [{% for m in monthly %}"{{ m.month|date:'M Y' }}"{% if not forloop.last %},{% endif %}{% endfor %}].reverse(),
+  datasets:[{
+    label:'Appointments',
+    data:[{% for m in monthly %}{{ m.count }}{% if not forloop.last %},{% endif %}{% endfor %}].reverse(),
+    backgroundColor: accent + '55',
+    borderColor: teal,
+    borderWidth:2,fill:true,tension:0.4,
+    pointBackgroundColor:teal,
+  }]
+};
+new Chart(document.getElementById('monthlyChart'),{
+  type:'line',data:monthlyData,
+  options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+});
+
+// Status
+const statusColors = {pending:'#fff4e0',approved:'#e0f8ef',completed:'#e8f0fe',cancelled:'#fde8e8'};
+const statusBorder = {pending:'#c07000',approved:'#0e7a50',completed:'#3557b7',cancelled:'#a61b1b'};
+const statusLabels = [{% for s in status_stats %}"{{ s.status }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+const statusData   = [{% for s in status_stats %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}];
+new Chart(document.getElementById('statusChart'),{
+  type:'doughnut',
+  data:{
+    labels: statusLabels.map(l=>l.charAt(0).toUpperCase()+l.slice(1)),
+    datasets:[{
+      data: statusData,
+      backgroundColor: statusLabels.map(l=>statusColors[l]||'#eee'),
+      borderColor:     statusLabels.map(l=>statusBorder[l]||'#999'),
+      borderWidth:2,
+    }]
+  },
+  options:{plugins:{legend:{position:'bottom'}}}
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>@media(max-width:640px){.stats-grid{grid-template-columns:1fr 1fr;}.card{grid-column:1/-1 !important;}}</style>
+{% endblock %}

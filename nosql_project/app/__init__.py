@@ -6,6 +6,7 @@ from .db import get_db_status, init_db
 def create_app():
     app = Flask(__name__)
     app.config["JSON_SORT_KEYS"] = False
+    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
     db_status = get_db_status()
 

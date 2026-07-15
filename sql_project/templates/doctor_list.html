@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Find a Doctor – UMC{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>🔍 Find a Doctor</h1>
+  <p>Filter by specialty or department and book your appointment.</p>
+</div>
+
+<!-- Filter Bar -->
+<form method="get">
+  <div class="filter-bar">
+    <div class="form-group">
+      <label>Specialty</label>
+      {{ form.specialty }}
+    </div>
+    <div class="form-group">
+      <label>Department</label>
+      {{ form.department }}
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-bottom:0;">Search</button>
+    <a href="{% url 'doctor_list' %}" class="btn btn-ghost" style="margin-bottom:0;">Clear</a>
+  </div>
+</form>
+
+<div class="card-grid">
+  {% for p in doctors %}
+  <div class="card" style="display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      {% if p.photo %}
+        <img src="{{ p.photo.url }}" alt="Dr photo"
+             style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);">
+      {% else %}
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--primary));display:grid;place-items:center;color:#fff;font-size:1.5rem;flex-shrink:0;">👨‍⚕️</div>
+      {% endif %}
+      <div>
+        <div style="font-weight:700;font-size:1rem;">Dr. {{ p.user.get_full_name|default:p.user.username }}</div>
+        {% if p.specialty %}<div style="color:var(--primary);font-size:.85rem;font-weight:600;">{{ p.specialty }}</div>{% endif %}
+        {% if p.department %}<div style="color:var(--muted);font-size:.82rem;">{{ p.department }}</div>{% endif %}
+      </div>
+    </div>
+    {% if p.bio %}
+      <p style="color:var(--muted);font-size:.88rem;line-height:1.5;">{{ p.bio|truncatewords:20 }}</p>
+    {% endif %}
+    <div style="display:flex;gap:8px;margin-top:auto;">
+      <a href="{% url 'doctor_profile' p.user.id %}" class="btn btn-ghost btn-sm">View Profile</a>
+      <a href="{% url 'book_appointment' p.user.id %}" class="btn btn-primary btn-sm">Book</a>
+    </div>
+  </div>
+  {% empty %}
+    <p style="color:var(--muted);grid-column:1/-1;">No doctors found matching your filter.</p>
+  {% endfor %}
+</div>
+{% endblock %}

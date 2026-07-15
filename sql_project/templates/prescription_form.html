@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Write Prescription | UMC{% endblock %}
+
+{% block content %}
+<div style="max-width:860px;margin:0 auto;">
+  <div class="page-header">
+    <h1>Write Prescription</h1>
+    <p>
+      Patient: <strong>{{ appointment.student.get_full_name|default:appointment.student.username }}</strong>
+      | Doctor: <strong>{{ appointment.doctor.get_full_name|default:appointment.doctor.username }}</strong>
+    </p>
+  </div>
+
+  <div class="card" style="padding:28px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:22px;">
+      <div class="stat-card" style="margin-bottom:0;">
+        <div class="stat-lbl">Date</div>
+        <div style="font-weight:700;font-size:1.05rem;">{{ appointment.date }}</div>
+      </div>
+      <div class="stat-card" style="margin-bottom:0;">
+        <div class="stat-lbl">Time</div>
+        <div style="font-weight:700;font-size:1.05rem;">{{ appointment.time|time:"g:i A" }}</div>
+      </div>
+      <div class="stat-card" style="margin-bottom:0;">
+        <div class="stat-lbl">Status</div>
+        <div style="font-weight:700;font-size:1.05rem;">{{ appointment.get_status_display }}</div>
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label>Diagnosis</label>
+        {{ form.diagnosis }}
+        {{ form.diagnosis.errors }}
+      </div>
+
+      <div class="form-group">
+        <label>Medicines</label>
+        {{ form.medicines }}
+        {{ form.medicines.errors }}
+      </div>
+
+      <div class="form-group">
+        <label>Dose</label>
+        {{ form.dose }}
+        {{ form.dose.errors }}
+      </div>
+
+      <div class="form-group">
+        <label>Tests</label>
+        {{ form.tests }}
+        {{ form.tests.errors }}
+      </div>
+
+      <div class="form-group">
+        <label>Advice</label>
+        {{ form.advice }}
+        {{ form.advice.errors }}
+      </div>
+
+      <div class="form-group">
+        <label>Meeting Link</label>
+        <input type="url" name="meeting_link" class="input" value="{{ appointment.meeting_link }}" placeholder="https://...">
+      </div>
+
+      <div class="form-group">
+        <label>Doctor Notes</label>
+        <textarea name="doctor_notes" class="textarea" rows="4" placeholder="Internal notes...">{{ appointment.doctor_notes }}</textarea>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button type="submit" class="btn btn-primary">Save Prescription</button>
+        <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline">Back to Dashboard</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

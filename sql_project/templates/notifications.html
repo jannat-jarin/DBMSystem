@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Notifications – UMC{% endblock %}
+{% block content %}
+<div style="max-width:720px;margin:0 auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:10px;">
+    <div class="page-header" style="margin-bottom:0;">
+      <h1>🔔 Notifications</h1>
+    </div>
+    <a href="{% url 'mark_all_read' %}" class="btn btn-ghost btn-sm">Mark all read</a>
+  </div>
+
+  {% if notifications %}
+    {% for n in notifications %}
+    <div class="card" style="margin-bottom:10px;border-left:4px solid
+      {% if n.notif_type == 'approved' %}var(--success)
+      {% elif n.notif_type == 'cancelled' %}var(--danger)
+      {% elif n.notif_type == 'prescribed' %}var(--primary)
+      {% else %}var(--warn){% endif %};
+      {% if not n.is_read %}background:#f0fdf9;{% endif %}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+        <div>
+          <div style="font-weight:{% if not n.is_read %}700{% else %}500{% endif %};">
+            {% if n.notif_type == 'approved' %}✅
+            {% elif n.notif_type == 'cancelled' %}❌
+            {% elif n.notif_type == 'prescribed' %}💊
+            {% elif n.notif_type == 'rescheduled' %}🔄
+            {% else %}ℹ️{% endif %}
+            {{ n.message }}
+          </div>
+          <div style="color:var(--muted);font-size:.82rem;margin-top:4px;">{{ n.created_at|timesince }} ago</div>
+        </div>
+        {% if not n.is_read %}
+          <span style="min-width:9px;height:9px;background:var(--primary);border-radius:50%;margin-top:5px;flex-shrink:0;"></span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="card" style="text-align:center;padding:48px;">
+      <div style="font-size:3rem;">🔕</div>
+      <p style="color:var(--muted);margin-top:12px;">No notifications yet.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

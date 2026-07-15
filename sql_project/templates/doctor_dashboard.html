@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Doctor Dashboard | UMC{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>Doctor Dashboard</h1>
+  <p>Review student appointments, update appointment status, and write prescriptions.</p>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-num">{{ appointments|length }}</div>
+    <div class="stat-lbl">Total Appointments</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num">{{ pending_count }}</div>
+    <div class="stat-lbl">Pending</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num">{{ approved_count }}</div>
+    <div class="stat-lbl">Approved</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num">{{ completed_count }}</div>
+    <div class="stat-lbl">Completed</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num">{{ cancelled_count }}</div>
+    <div class="stat-lbl">Cancelled</div>
+  </div>
+</div>
+
+{% if appointments %}
+  <div class="card-grid">
+    {% for appointment in appointments %}
+      <div class="card" style="margin-bottom:0;">
+
+        <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+          <div>
+            <div class="badge-status badge-{{ appointment.status }}">
+              {{ appointment.get_status_display }}
+            </div>
+
+            <h3 style="margin-top:10px;">
+              {{ appointment.student.get_full_name|default:appointment.student.username }}
+            </h3>
+
+            <p style="color:var(--muted); margin-top:4px;">
+              {{ appointment.date }} at {{ appointment.time|time:"g:i A" }}
+            </p>
+          </div>
+
+          <div style="text-align:right; color:var(--muted); font-size:.9rem; max-width:360px;">
+            <div>
+              <strong>Reason:</strong>
+              {{ appointment.reason|default:"No reason provided" }}
+            </div>
+
+            <div style="margin-top:6px;">
+              <strong>Symptoms:</strong>
+              {{ appointment.symptoms|default:"No symptoms noted" }}
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;">
+          <a href="{% url 'doctor_patient_history' appointment.student.id %}" class="btn btn-outline">
+            View Student
+          </a>
+
+          <a href="{% url 'prescribe' appointment.id %}" class="btn btn-primary">
+            Prescribe
+          </a>
+        </div>
+
+        <form method="post"
+              action="{% url 'update_appointment_status' appointment.id %}"
+              style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+
+          {% csrf_token %}
+
+          <select name="status" class="select" style="max-width:200px;">
+            {% for value, label in status_choices %}
+              <option value="{{ value }}" {% if appointment.status == value %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+
+          <button type="submit" class="btn btn-ghost">
+            Update Status
+          </button>
+        </form>
+
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card">
+    <p style="color:var(--muted);">
+      No appointments yet.
+    </p>
+  </div>
+{% endif %}
+
+{% endblock %}

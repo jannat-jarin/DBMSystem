@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Home | UMC{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hero-home{
+    background:
+      linear-gradient(130deg, rgba(11,52,46,.92) 0%, rgba(43,138,120,.76) 52%, rgba(127,216,200,.38) 100%),
+      url("{% static 'clinic/hero-medical-center.png' %}") center/cover no-repeat;
+    color:#fff;
+    border-radius:28px;
+    overflow:hidden;
+    box-shadow:0 18px 45px rgba(18,60,50,.14);
+    min-height:420px;
+    display:flex;
+    align-items:flex-end;
+  }
+
+  .hero-inner{
+    padding:36px;
+    max-width:780px;
+  }
+
+  .hero-home h1{
+    font-size:2.6rem;
+    line-height:1.03;
+    margin-bottom:14px;
+  }
+
+  .hero-home p{
+    font-size:1.02rem;
+    line-height:1.7;
+    color:rgba(255,255,255,.88);
+  }
+
+  .cta-row{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:22px;
+  }
+
+  .feature-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:18px;
+    margin-top:22px;
+  }
+
+  .feature-card{
+    background:var(--card);
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 8px 20px rgba(18,60,50,.08);
+  }
+
+  .feature-card h3{
+    margin-bottom:8px;
+    color:var(--primary-dark);
+  }
+
+  .feature-card p{
+    line-height:1.55;
+  }
+
+  .doctor-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:18px;
+    margin-top:18px;
+  }
+
+  .doctor-card{
+    background:#fff;
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 8px 18px rgba(18,60,50,.08);
+  }
+
+  .doctor-card .avatar{
+    width:52px;
+    height:52px;
+    border-radius:16px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:grid;
+    place-items:center;
+    color:#fff;
+    font-weight:800;
+    margin-bottom:12px;
+  }
+
+  .doctor-card h3{
+    color:var(--primary-dark);
+    margin-bottom:4px;
+  }
+
+  .doctor-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+
+  .section-head{
+    margin:28px 0 12px;
+  }
+
+  .section-head h2{
+    font-size:1.4rem;
+    color:var(--primary-dark);
+  }
+
+  .section-head p{
+    color:var(--muted);
+    margin-top:4px;
+  }
+
+  @media(max-width:700px){
+    .hero-inner{
+      padding:28px 22px;
+    }
+
+    .hero-home h1{
+      font-size:2rem;
+    }
+
+    .hero-home{
+      min-height:360px;
+      border-radius:22px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="hero-home">
+  <div class="hero-inner">
+    <span class="badge-status badge-approved" style="background:rgba(255,255,255,.14);color:#fff;">
+      University Medical Center Portal
+    </span>
+
+    <h1>Your university medical services in one place.</h1>
+
+    <p>
+      Book doctor appointments, manage health records, view prescriptions, and access
+      medical services through a simple role-based portal for students, doctors, and admins.
+    </p>
+
+    <div class="cta-row">
+      {% if user.is_authenticated %}
+        <a href="{% url 'doctor_list' %}" class="btn btn-primary">
+          Find a Doctor
+        </a>
+      {% else %}
+        <a href="{% url 'register' %}" class="btn btn-primary">
+          Create account
+        </a>
+
+        <a href="{% url 'login' %}" class="btn btn-outline" style="border-color:#fff;color:#fff;">
+          Login
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>Student Services</h3>
+    <p>
+      Book appointments, view health cards, check prescriptions, and keep your
+      medical records organized in one dashboard.
+    </p>
+  </div>
+
+  <div class="feature-card">
+    <h3>Doctor Tools</h3>
+    <p>
+      Set availability, manage appointments, review student visits, and issue
+      prescriptions through the portal.
+    </p>
+  </div>
+
+  <div class="feature-card">
+    <h3>Admin Control</h3>
+    <p>
+      Manage students, doctors, reports, appointments, and overall University
+      Medical Center activities from one place.
+    </p>
+  </div>
+</div>
+
+{% if featured_doctors %}
+  <div class="section-head">
+    <h2>Featured Doctors</h2>
+    <p>Quick access to available doctors for student medical support.</p>
+  </div>
+
+  <div class="doctor-grid">
+    {% for profile in featured_doctors %}
+      <div class="doctor-card">
+        <div class="avatar">
+          {{ profile.user.username|slice:":1"|upper }}
+        </div>
+
+        <h3>
+          Dr. {{ profile.user.get_full_name|default:profile.user.username }}
+        </h3>
+
+        <p style="color:var(--muted); margin-top:6px;">
+          {{ profile.department|default:"General Medicine" }}
+        </p>
+
+        <p style="margin-top:8px;">
+          {{ profile.specialty|default:"Specialty not set yet." }}
+        </p>
+
+        <div class="doctor-actions">
+          <a href="{% url 'doctor_profile' profile.user.id %}" class="btn btn-outline btn-sm">
+            View Profile
+          </a>
+
+          {% if user.is_authenticated and user_role == 'student' %}
+            <a href="{% url 'book_appointment' profile.user.id %}" class="btn btn-primary btn-sm">
+              Book Appointment
+            </a>
+          {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary btn-sm">
+              Login to Book
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="section-head">
+    <h2>Featured Doctors</h2>
+    <p>No doctors are available right now. Please check again later.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

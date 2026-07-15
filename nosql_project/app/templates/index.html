@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
   <title>Job Application Tracker</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ asset_version }}">
 </head>
 <body data-default-date="{{ today }}">
   <main class="page-shell">
@@ -25,7 +27,7 @@
       <div class="hero-side">
         <div class="hero-image-card">
           <img
-            src="{{ url_for('static', filename='images/job-interview-conversation.avif') }}"
+            src="{{ url_for('static', filename='images/job-interview-conversation.avif') }}?v={{ asset_version }}"
             alt="Interview conversation illustration"
           >
           <div class="hero-image-overlay">
@@ -61,27 +63,27 @@
     <section class="summary-grid" id="statsGrid">
       <article class="summary-card">
         <span>Total Applications</span>
-        <strong id="statTotal">0</strong>
+        <strong id="statTotal">{{ initial_stats.total }}</strong>
       </article>
       <article class="summary-card">
         <span>Applied</span>
-        <strong id="statApplied">0</strong>
+        <strong id="statApplied">{{ initial_stats.applied }}</strong>
       </article>
       <article class="summary-card">
         <span>Interview</span>
-        <strong id="statInterview">0</strong>
+        <strong id="statInterview">{{ initial_stats.interview }}</strong>
       </article>
       <article class="summary-card">
         <span>Selected</span>
-        <strong id="statSelected">0</strong>
+        <strong id="statSelected">{{ initial_stats.selected }}</strong>
       </article>
       <article class="summary-card">
         <span>Rejected</span>
-        <strong id="statRejected">0</strong>
+        <strong id="statRejected">{{ initial_stats.rejected }}</strong>
       </article>
       <article class="summary-card accent">
         <span>Upcoming Deadlines</span>
-        <strong id="statDeadline">0</strong>
+        <strong id="statDeadline">{{ initial_stats.upcoming_deadlines }}</strong>
       </article>
     </section>
 
@@ -211,6 +213,6 @@
     </div>
   </div>
 
-  <script src="{{ url_for('static', filename='app.js') }}"></script>
+  <script src="{{ url_for('static', filename='app.js') }}?v={{ asset_version }}"></script>
 </body>
 </html>

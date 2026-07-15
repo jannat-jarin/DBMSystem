@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Book Appointment – UMC{% endblock %}
+{% block content %}
+<div style="max-width:600px;margin:0 auto;">
+  <div class="page-header">
+    <h1>📅 Book Appointment</h1>
+    <p>Scheduling with <strong>Dr. {{ doctor.get_full_name|default:doctor.username }}</strong></p>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="section-title">🗓 Doctor's Available Hours</div>
+    {% if slots %}
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
+        {% for slot in slots %}
+          <div style="background:rgba(43,138,120,.08);border-radius:8px;padding:8px 14px;display:flex;gap:14px;">
+            <span style="font-weight:600;color:var(--primary);min-width:90px;">{{ slot.get_day_of_week_display }}</span>
+            <span style="color:var(--muted);">{{ slot.start_time|time:"g:i A" }} – {{ slot.end_time|time:"g:i A" }}</span>
+          </div>
+        {% endfor %}
+      </div>
+      <p style="color:var(--muted);font-size:.82rem;margin-top:8px;">⚠️ Choose a date/time within these hours only.</p>
+    {% else %}
+      <p style="color:var(--warn);">⚠️ This doctor hasn't set availability yet. Contact the medical center.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" name="date" class="input" required
+               min="{{ today|date:'Y-m-d' }}">
+      </div>
+      <div class="form-group">
+        <label>Time</label>
+        <input type="time" name="time" class="input" required>
+      </div>
+      <div class="form-group">
+        <label>Reason for Visit</label>
+        <input type="text" name="reason" class="input" placeholder="e.g. Fever, Headache...">
+      </div>
+      <div class="form-group">
+        <label>Symptoms (optional)</label>
+        <textarea name="symptoms" class="textarea" rows="3" placeholder="Describe your symptoms..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Send Appointment Request</button>
+    </form>
+  </div>
+</div>
+
+{{ available_days|json_script:"available-days" }}
+<script>
+// Highlight available days in date picker.
+(function () {
+  const input = document.querySelector('input[name="date"]');
+  const hint = document.getElementById('day-hint');
+  const daysNode = document.getElementById('available-days');
+  if (!input || !hint || !daysNode) return;
+
+  const availableDays = JSON.parse(daysNode.textContent || '[]');
+
+  input.addEventListener('change', function () {
+    if (!this.value) {
+      hint.textContent = '';
+      return;
+    }
+    const d = new Date(this.value + 'T00:00:00');
+    const dow = d.getDay(); // 0=Sun, 1=Mon ...
+    const pyDow = (dow + 6) % 7; // Python weekday: 0=Mon ... 6=Sun
+
+    if (!availableDays.includes(pyDow)) {
+      hint.textContent = '⚠️ The doctor is not available on this day. Please pick another date.';
+      hint.style.color = '#c0392b';
+    } else {
+      hint.textContent = '✅ Doctor is available on this day.';
+      hint.style.color = '#0e7a50';
+    }
+  });
+})();
+</script>
+<p id="day-hint" style="font-size:.85rem;margin-top:-10px;margin-left:4px;"></p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+</style>
+{% endblock %}

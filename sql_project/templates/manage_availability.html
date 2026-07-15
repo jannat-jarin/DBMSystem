@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}My Schedule – UMC{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>🗓 Manage My Schedule</h1>
+  <p>Set the days and times when students can book appointments with you.</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;flex-wrap:wrap;">
+
+  <!-- Add Slot -->
+  <div class="card">
+    <div class="section-title">➕ Add New Slot</div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Day of Week</label>
+        <select name="day_of_week" class="input">
+          {% for val,label in form.fields.day_of_week.choices %}
+            <option value="{{ val }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Start Time</label>
+        {{ form.start_time }}
+      </div>
+      <div class="form-group">
+        <label>End Time</label>
+        {{ form.end_time }}
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" name="is_active" id="is_active" checked style="width:16px;height:16px;">
+        <label for="is_active" style="margin:0;">Active (students can book)</label>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Add Slot</button>
+    </form>
+  </div>
+
+  <!-- Existing Slots -->
+  <div>
+    <div class="section-title">📋 Current Availability</div>
+    {% if slots %}
+      {% for slot in slots %}
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;margin-bottom:10px;">
+        <div>
+          <span style="font-weight:700;color:var(--primary);">{{ slot.get_day_of_week_display }}</span>
+          <span style="color:var(--muted);margin-left:10px;">{{ slot.start_time|time:"g:i A" }} – {{ slot.end_time|time:"g:i A" }}</span>
+          {% if not slot.is_active %}
+            <span class="badge-status badge-cancelled" style="margin-left:8px;">Inactive</span>
+          {% endif %}
+        </div>
+        <a href="{% url 'delete_availability' slot.id %}"
+           onclick="return confirm('Remove this slot?')"
+           class="btn btn-danger btn-sm">✕</a>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="card" style="text-align:center;padding:32px;color:var(--muted);">
+        No slots yet. Add your first availability slot.
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>@media(max-width:640px){.card+div{grid-column:1/-1;}}</style>
+{% endblock %}

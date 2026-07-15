@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}My Health Card – UMC{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>💊 My Health Card</h1>
+  <p>Your complete medical history — all diagnoses & prescriptions in one place.</p>
+</div>
+
+<!-- Summary banner -->
+<div class="stats-grid" style="margin-bottom:24px;">
+  <div class="stat-card">
+    <div class="stat-num">{{ prescriptions.count }}</div>
+    <div class="stat-lbl">Prescriptions</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ profile.age|default:"–" }}</div>
+    <div class="stat-lbl">Age</div>
+  </div>
+</div>
+
+{% if prescriptions %}
+  {% for presc in prescriptions %}
+  <div class="card" style="border-left:4px solid var(--primary);margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+      <div>
+        <div style="font-weight:700;font-size:1.05rem;color:var(--primary-dark);">
+          🩺 {{ presc.diagnosis }}
+        </div>
+        <div style="color:var(--muted);font-size:.85rem;margin-top:2px;">
+          Dr. {{ presc.doctor.get_full_name|default:presc.doctor.username }} · {{ presc.created_at|date:"d M Y" }}
+        </div>
+      </div>
+      <a href="{% url 'prescription_pdf' presc.id %}" class="btn btn-primary btn-sm">⬇ Download PDF</a>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+      {% if presc.medicines %}
+      <div style="background:rgba(43,138,120,.07);border-radius:10px;padding:12px;">
+        <div style="font-weight:600;font-size:.82rem;color:var(--muted);margin-bottom:4px;">💊 MEDICINES</div>
+        <div style="white-space:pre-line;font-size:.9rem;">{{ presc.medicines }}</div>
+      </div>
+      {% endif %}
+      {% if presc.dose %}
+      <div style="background:rgba(43,138,120,.07);border-radius:10px;padding:12px;">
+        <div style="font-weight:600;font-size:.82rem;color:var(--muted);margin-bottom:4px;">📋 DOSE</div>
+        <div style="white-space:pre-line;font-size:.9rem;">{{ presc.dose }}</div>
+      </div>
+      {% endif %}
+      {% if presc.tests %}
+      <div style="background:rgba(43,138,120,.07);border-radius:10px;padding:12px;">
+        <div style="font-weight:600;font-size:.82rem;color:var(--muted);margin-bottom:4px;">🔬 TESTS</div>
+        <div style="white-space:pre-line;font-size:.9rem;">{{ presc.tests }}</div>
+      </div>
+      {% endif %}
+      {% if presc.advice %}
+      <div style="background:rgba(43,138,120,.07);border-radius:10px;padding:12px;">
+        <div style="font-weight:600;font-size:.82rem;color:var(--muted);margin-bottom:4px;">✅ ADVICE</div>
+        <div style="white-space:pre-line;font-size:.9rem;">{{ presc.advice }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card" style="text-align:center;padding:48px;">
+    <div style="font-size:3rem;">📭</div>
+    <p style="color:var(--muted);margin-top:12px;">No prescription records yet.</p>
+    <a href="{% url 'doctor_list' %}" class="btn btn-primary" style="margin-top:16px;">Book a Consultation</a>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,250 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}University Medical Center{% endblock %}</title>
+  <style>
+    :root {
+      --primary:      #2b8a78;
+      --primary-dark: #174e46;
+      --accent:       #7fd8c8;
+      --bg:           #f2faf8;
+      --card:         rgba(255,255,255,0.94);
+      --card-strong:  #ffffff;
+      --text:         #14332f;
+      --muted:        #5f7a75;
+      --danger:       #c0392b;
+      --warn:         #e67e22;
+      --success:      #27ae60;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Segoe UI',Arial,sans-serif;
+      background:
+        radial-gradient(circle at top,rgba(127,216,200,.18),transparent 36%),
+        linear-gradient(180deg,#f8fffd 0%,var(--bg) 100%);
+      color:var(--text);min-height:100vh;
+    }
+    a{color:inherit;text-decoration:none;}
+
+    /* ── NAV ── */
+    .nav{
+      background:rgba(11,52,46,.92);backdrop-filter:blur(14px);
+      color:#fff;padding:12px 24px;
+      display:flex;justify-content:space-between;align-items:center;
+      gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100;
+      box-shadow:0 6px 24px rgba(6,22,34,.22);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700;}
+    .brand-mark{
+      width:38px;height:38px;border-radius:12px;
+      background:linear-gradient(145deg,#9be7d8,var(--primary));
+      display:grid;place-items:center;color:#fff;
+      box-shadow:0 8px 20px rgba(43,138,120,.35);font-size:.76rem;letter-spacing:.07em;
+    }
+    .brand-sub{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:400;}
+    .role-chip{
+      display:inline-flex;align-items:center;gap:6px;
+      margin-left:8px;padding:4px 10px;border-radius:999px;
+      background:rgba(255,255,255,.12);color:#fff;
+      font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+    }
+    .nav-links{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+    .nav-links a{
+      color:#fff;opacity:.9;padding:8px 13px;border-radius:999px;
+      font-size:.9rem;transition:background .2s,opacity .2s;
+    }
+    .nav-links a:hover{background:rgba(255,255,255,.13);opacity:1;}
+    .nav-links a.active{background:rgba(127,216,200,.22);opacity:1;font-weight:600;}
+
+    /* notification bell */
+    .notif-bell{position:relative;display:inline-flex;align-items:center;}
+    .notif-bell .badge{
+      position:absolute;top:-4px;right:-4px;
+      background:#e74c3c;color:#fff;border-radius:999px;
+      font-size:.65rem;font-weight:700;min-width:17px;height:17px;
+      display:grid;place-items:center;padding:0 3px;
+      box-shadow:0 2px 6px rgba(231,76,60,.5);
+    }
+
+    /* ── WRAP ── */
+    .wrap{width:min(1180px,calc(100% - 28px));margin:24px auto 60px;position:relative;z-index:1;}
+
+    /* ── MESSAGES ── */
+    .messages{margin-bottom:18px;}
+    .message{
+      padding:12px 16px;border-radius:10px;margin-bottom:8px;
+      background:#e9f8f4;color:#1f6a5e;
+      box-shadow:0 4px 14px rgba(27,107,92,.1);
+      display:flex;align-items:center;gap:10px;
+    }
+    .message.error{background:#fde8e8;color:#a61b1b;}
+    .message.warning{background:#fff4e0;color:#8a5600;}
+
+    /* ── CARDS ── */
+    .card{
+      background:var(--card);border-radius:18px;
+      box-shadow:0 4px 20px rgba(18,60,50,.09);
+      padding:24px;margin-bottom:18px;
+    }
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
+
+    /* ── BADGES ── */
+    .badge-status{
+      display:inline-block;padding:3px 10px;border-radius:999px;
+      font-size:.78rem;font-weight:600;letter-spacing:.02em;
+    }
+    .badge-pending  {background:#fff4e0;color:#c07000;}
+    .badge-approved {background:#e0f8ef;color:#0e7a50;}
+    .badge-completed{background:#e8f0fe;color:#3557b7;}
+    .badge-cancelled{background:#fde8e8;color:#a61b1b;}
+
+    /* ── BUTTONS ── */
+    .btn{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:9px 18px;border-radius:10px;border:none;cursor:pointer;
+      font-size:.9rem;font-weight:600;transition:transform .15s,box-shadow .15s,opacity .15s;
+      text-decoration:none;
+    }
+    .btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.15);}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;box-shadow:0 4px 14px rgba(43,138,120,.3);}
+    .btn-outline{background:transparent;border:2px solid var(--primary);color:var(--primary);}
+    .btn-danger {background:#e74c3c;color:#fff;}
+    .btn-warn   {background:#e67e22;color:#fff;}
+    .btn-sm     {padding:5px 12px;font-size:.82rem;}
+    .btn-ghost  {background:rgba(43,138,120,.1);color:var(--primary);}
+
+    /* ── FORM INPUTS ── */
+    .input,.textarea,.select{
+      width:100%;padding:10px 14px;border:1.5px solid #c5deda;border-radius:10px;
+      font-size:.95rem;background:#f8fffc;color:var(--text);
+      transition:border-color .2s,box-shadow .2s;outline:none;
+    }
+    .input:focus,.textarea:focus,.select:focus{
+      border-color:var(--primary);box-shadow:0 0 0 3px rgba(43,138,120,.15);
+    }
+    .textarea{resize:vertical;}
+    .form-group{margin-bottom:16px;}
+    .form-group label{display:block;font-weight:600;margin-bottom:6px;font-size:.9rem;color:var(--muted);}
+
+    /* ── TABLE ── */
+    .tbl-wrap{overflow-x:auto;border-radius:14px;box-shadow:0 2px 12px rgba(18,60,50,.08);}
+    table{width:100%;border-collapse:collapse;background:var(--card);}
+    th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:13px 14px;text-align:left;font-size:.88rem;font-weight:600;}
+    th:first-child{border-radius:14px 0 0 0;}th:last-child{border-radius:0 14px 0 0;}
+    td{padding:12px 14px;border-bottom:1px solid rgba(43,138,120,.1);font-size:.9rem;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(43,138,120,.04);}
+
+    /* ── PAGE HEADER ── */
+    .page-header{margin-bottom:28px;}
+    .page-header h1{font-size:1.7rem;font-weight:700;color:var(--primary-dark);}
+    .page-header p{color:var(--muted);margin-top:4px;}
+
+    /* ── STATS GRID ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
+    .stat-card{
+      background:var(--card);border-radius:14px;padding:18px 16px;text-align:center;
+      box-shadow:0 3px 14px rgba(18,60,50,.09);
+    }
+    .stat-num{font-size:2rem;font-weight:800;color:var(--primary);}
+    .stat-lbl{font-size:.82rem;color:var(--muted);margin-top:2px;}
+
+    /* ── HERO ── */
+    .hero{
+      min-height:480px;border-radius:28px;overflow:hidden;
+      background-size:cover;background-position:center;
+      position:relative;display:flex;align-items:center;color:#fff;
+      box-shadow:0 16px 48px rgba(18,42,58,.18);
+    }
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(11,52,46,.78) 0%,rgba(43,138,120,.38) 100%);}
+    .hero-content{position:relative;z-index:1;padding:48px;}
+
+    /* ── SECTION TITLE ── */
+    .section-title{font-size:1.25rem;font-weight:700;color:var(--primary-dark);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+
+    /* watermark */
+    .page-watermark{position:fixed;inset:0;background-image:url("{% static 'clinic/hero-medical-center.png' %}");background-repeat:no-repeat;background-size:min(1220px,92vw);background-position:center 140px;opacity:.04;pointer-events:none;z-index:0;}
+
+    /* filter bar */
+    .filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;background:var(--card);padding:16px;border-radius:14px;margin-bottom:20px;box-shadow:0 2px 10px rgba(18,60,50,.07);}
+    .filter-bar .form-group{margin:0;min-width:160px;}
+
+    /* pill tabs */
+    .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+    .tab{padding:7px 18px;border-radius:999px;background:rgba(43,138,120,.1);color:var(--primary);font-weight:600;font-size:.88rem;cursor:pointer;border:none;transition:background .2s;}
+    .tab.active,.tab:hover{background:var(--primary);color:#fff;}
+
+    @media(max-width:640px){
+      .nav{padding:10px 14px;}
+      .hero-content{padding:28px 20px;}
+      .hero{min-height:340px;}
+      th,td{padding:9px 10px;}
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="page-watermark"></div>
+
+<nav class="nav">
+  <a class="brand" href="{% url 'home' %}">
+    <div class="brand-mark">UMC</div>
+    <div>
+      University Medical Center
+      <span class="brand-sub">Patient, Doctor & Admin Portal</span>
+    </div>
+  </a>
+
+  <div class="nav-links">
+    {% if user.is_authenticated %}
+      {% if user_role == 'student' %}
+        <a href="{% url 'doctor_list' %}">🔍 Doctors</a>
+        <a href="{% url 'student_history' %}">📋 My Appointments</a>
+        <a href="{% url 'health_card' %}">💊 Health Card</a>
+      {% elif user_role == 'doctor' %}
+        <a href="{% url 'doctor_dashboard' %}">🏥 Dashboard</a>
+        <a href="{% url 'manage_availability' %}">🗓 My Schedule</a>
+      {% elif user_role == 'admin' %}
+        <a href="{% url 'admin_reports' %}">📊 Reports</a>
+      {% endif %}
+      <a href="{% url 'profile' %}" class="btn btn-ghost btn-sm">My Profile</a>
+
+      <!-- Notification Bell -->
+      <a href="{% url 'notifications' %}" class="notif-bell">
+        🔔
+        {% if unread_notifications %}
+          <span class="badge">{{ unread_notifications }}</span>
+        {% endif %}
+      </a>
+
+      <a href="{% url 'profile' %}">👤 {{ user.get_full_name|default:user.username }}</a>
+      {% if user_role_label %}
+        <span class="role-chip">{{ user_role_label }}</span>
+      {% endif %}
+      <a href="{% url 'logout' %}" style="opacity:.7;">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Register</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="wrap">
+  {% if messages %}
+    <div class="messages">
+      {% for msg in messages %}
+        <div class="message {% if msg.tags == 'error' %}error{% elif msg.tags == 'warning' %}warning{% endif %}">
+          {{ msg }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

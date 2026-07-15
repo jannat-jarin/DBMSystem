@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}My Appointments – UMC{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>📋 My Appointments</h1>
+  <p>Your complete appointment history.</p>
+</div>
+
+<!-- Filter -->
+<form method="get">
+  <div class="filter-bar">
+    <div class="form-group">
+      <label>Status</label>
+      <select name="status" class="input" style="min-width:140px;">
+        <option value="">All Status</option>
+        {% for val,label in form.fields.status.choices %}
+          <option value="{{ val }}" {% if form.status.value == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>From Date</label>
+      {{ form.date_from }}
+    </div>
+    <div class="form-group">
+      <label>To Date</label>
+      {{ form.date_to }}
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-bottom:0;">Filter</button>
+    <a href="{% url 'student_history' %}" class="btn btn-ghost" style="margin-bottom:0;">Clear</a>
+  </div>
+</form>
+
+{% if appointments %}
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Doctor</th><th>Date & Time</th><th>Status</th>
+        <th>Prescription</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for appt in appointments %}
+      <tr>
+        <td>
+          <strong>Dr. {{ appt.doctor.get_full_name|default:appt.doctor.username }}</strong><br>
+          <span style="color:var(--muted);font-size:.82rem;">{{ appt.reason|default:"–" }}</span>
+        </td>
+        <td>{{ appt.date }}<br><span style="color:var(--muted);font-size:.82rem;">{{ appt.time|time:"g:i A" }}</span></td>
+        <td><span class="badge-status badge-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+        <td>
+          {% if appt.prescription_item %}
+            <span style="color:var(--success);font-weight:600;">✅ Ready</span>
+            <br>
+            <a href="{% url 'prescription_pdf' appt.prescription_item.id %}"
+               class="btn btn-ghost btn-sm" style="margin-top:4px;">⬇ PDF</a>
+          {% else %}
+            <span style="color:var(--muted);">Pending</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if appt.status == 'pending' %}
+            <a href="{% url 'reschedule_appointment' appt.id %}" class="btn btn-warn btn-sm">🔄 Reschedule</a>
+          {% endif %}
+          {% if appt.meeting_link %}
+            <a href="{{ appt.meeting_link }}" target="_blank" class="btn btn-ghost btn-sm">📹 Join</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <div class="card" style="text-align:center;padding:48px;">
+    <div style="font-size:3rem;">📭</div>
+    <p style="color:var(--muted);margin-top:12px;">No appointments found.</p>
+    <a href="{% url 'doctor_list' %}" class="btn btn-primary" style="margin-top:16px;">Book an Appointment</a>
+  </div>
+{% endif %}
+{% endblock %}

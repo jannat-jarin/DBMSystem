@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Create Account | UMC{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-shell{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:22px;
+    align-items:stretch;
+  }
+  .auth-panel{
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 18px 45px rgba(18,60,50,.12);
+  }
+  .auth-hero{
+    background:
+      linear-gradient(140deg, rgba(11,52,46,.95) 0%, rgba(43,138,120,.92) 100%),
+      url("{% static 'clinic/hero-medical-center.png' %}") center/cover no-repeat;
+    color:#fff;
+    padding:34px;
+    min-height:100%;
+  }
+  .auth-hero h1{font-size:2.2rem;line-height:1.05;margin-bottom:12px;}
+  .auth-hero p{color:rgba(255,255,255,.82);line-height:1.6;margin-bottom:18px;}
+  .auth-points{display:grid;gap:10px;margin-top:22px;}
+  .auth-point{
+    display:flex;gap:10px;align-items:flex-start;
+    background:rgba(255,255,255,.1);padding:12px 14px;border-radius:14px;
+  }
+  .auth-point strong{display:block;margin-bottom:2px;}
+  .auth-form-wrap{background:var(--card-strong);padding:28px;}
+  .auth-form-wrap h2{font-size:1.6rem;margin-bottom:8px;color:var(--primary-dark);}
+  .auth-form-wrap .hint{color:var(--muted);margin-bottom:22px;line-height:1.5;}
+  .auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .field-errors{color:var(--danger);font-size:.85rem;margin-top:6px;}
+  .role-options{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:12px;
+  }
+  .role-options label{
+    border:1.5px solid rgba(43,138,120,.18);
+    border-radius:16px;
+    padding:14px 14px 12px;
+    background:linear-gradient(180deg, rgba(247,255,253,.9), #fff);
+    cursor:pointer;
+    transition:transform .15s, box-shadow .15s, border-color .15s;
+  }
+  .role-options label:hover{
+    transform:translateY(-1px);
+    box-shadow:0 10px 20px rgba(18,60,50,.09);
+    border-color:rgba(43,138,120,.45);
+  }
+  .role-options input{margin-right:8px;}
+  .role-options .label-title{font-weight:700;color:var(--primary-dark);display:block;margin-bottom:4px;}
+  .role-options .label-note{font-size:.84rem;color:var(--muted);line-height:1.35;}
+  .auth-footer{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    margin-top:16px;color:var(--muted);
+  }
+  @media (max-width: 900px){
+    .auth-shell{grid-template-columns:1fr;}
+  }
+  @media (max-width: 640px){
+    .auth-form-wrap,.auth-hero{padding:22px;}
+    .auth-grid{grid-template-columns:1fr;}
+    .auth-hero h1{font-size:1.8rem;}
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+  <section class="auth-panel auth-hero">
+    <div style="max-width:520px;">
+      <div class="brand-mark" style="margin-bottom:18px;">UMC</div>
+      <h1>Create your care portal account.</h1>
+      <p>Register as a patient or doctor, keep your records in one place, and get a cleaner dashboard experience from day one.</p>
+
+      <div class="auth-points">
+        <div class="auth-point">
+          <div>1</div>
+          <div>
+            <strong>Role-aware access</strong>
+            <span>Patient and doctor experiences stay separate and easier to understand.</span>
+          </div>
+        </div>
+        <div class="auth-point">
+          <div>2</div>
+          <div>
+            <strong>Safer profile setup</strong>
+            <span>Role detection keeps patient and doctor accounts on the right dashboards.</span>
+          </div>
+        </div>
+        <div class="auth-point">
+          <div>3</div>
+          <div>
+            <strong>Mobile-friendly layout</strong>
+            <span>Works better on smaller screens than the old stacked form.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="auth-panel auth-form-wrap">
+    <h2>Create Account</h2>
+    <p class="hint">Pick the right role. The form now shows <strong>Patient</strong> and <strong>Doctor</strong> instead of a plain student dropdown.</p>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="field-errors">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="auth-grid">
+        <div class="form-group">
+          <label for="{{ form.username.id_for_label }}">Username</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.email.id_for_label }}">Email</label>
+          {{ form.email }}
+          {{ form.email.errors }}
+        </div>
+      </div>
+
+      <div class="auth-grid">
+        <div class="form-group">
+          <label for="{{ form.password1.id_for_label }}">Password</label>
+          {{ form.password1 }}
+          {{ form.password1.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+          {{ form.password2 }}
+          {{ form.password2.errors }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Role</label>
+        <div class="role-options">
+          {% for radio in form.role %}
+            <label for="{{ radio.id_for_label }}">
+              {{ radio.tag }}
+              <span class="label-title">{{ radio.choice_label }}</span>
+              <span class="label-note">
+                {% if radio.choice_label == "Patient" %}
+                  Book appointments and keep your medical history here.
+                {% elif radio.choice_label == "Doctor" %}
+                  Manage availability, appointments, and prescriptions.
+                {% endif %}
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+        {{ form.role.errors }}
+      </div>
+
+      <div class="auth-grid">
+        <div class="form-group">
+          <label for="{{ form.age.id_for_label }}">Age</label>
+          {{ form.age }}
+          {{ form.age.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.photo.id_for_label }}">Profile Photo</label>
+          {{ form.photo }}
+          {{ form.photo.errors }}
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px;">Register</button>
+
+      <div class="auth-footer">
+        <span>Already have an account?</span>
+        <a href="{% url 'login' %}" class="btn btn-outline btn-sm">Login here</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

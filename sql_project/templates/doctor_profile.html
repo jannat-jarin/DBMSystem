@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Dr. {{ doctor.get_full_name|default:doctor.username }} – UMC{% endblock %}
+{% block content %}
+<div class="card" style="max-width:780px;margin:0 auto;">
+  <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-bottom:24px;">
+    {% if profile.photo %}
+      <img src="{{ profile.photo.url }}" alt="Photo"
+           style="width:110px;height:110px;border-radius:20px;object-fit:cover;border:3px solid var(--accent);flex-shrink:0;">
+    {% else %}
+      <div style="width:110px;height:110px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--primary));display:grid;place-items:center;color:#fff;font-size:3rem;flex-shrink:0;">👨‍⚕️</div>
+    {% endif %}
+    <div style="flex:1;min-width:200px;">
+      <h1 style="font-size:1.6rem;font-weight:800;color:var(--primary-dark);">
+        Dr. {{ doctor.get_full_name|default:doctor.username }}
+      </h1>
+      {% if profile.specialty %}
+        <div style="color:var(--primary);font-weight:600;font-size:1rem;margin-top:4px;">{{ profile.specialty }}</div>
+      {% endif %}
+      {% if profile.department %}
+        <div style="color:var(--muted);font-size:.92rem;">🏛 {{ profile.department }}</div>
+      {% endif %}
+      {% if profile.qualifications %}
+        <div style="color:var(--muted);font-size:.88rem;margin-top:4px;">🎓 {{ profile.qualifications }}</div>
+      {% endif %}
+      {% if profile.experience_years %}
+        <div style="color:var(--muted);font-size:.88rem;margin-top:4px;">⏱ {{ profile.experience_years }} years experience</div>
+      {% endif %}
+    </div>
+    {% if user_role == 'student' %}
+      <a href="{% url 'book_appointment' doctor.id %}" class="btn btn-primary" style="align-self:flex-start;">📅 Book Appointment</a>
+    {% endif %}
+  </div>
+
+  {% if profile.bio %}
+    <div style="margin-bottom:20px;">
+      <div class="section-title">About</div>
+      <p style="color:var(--muted);line-height:1.7;">{{ profile.bio }}</p>
+    </div>
+  {% endif %}
+
+  <!-- Available Slots -->
+  <div class="section-title">🗓 Available Time Slots</div>
+  {% if slots %}
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      {% for slot in slots %}
+        <div style="background:rgba(43,138,120,.08);border-radius:10px;padding:10px 16px;display:flex;gap:14px;align-items:center;">
+          <span style="font-weight:600;color:var(--primary);min-width:90px;">{{ slot.get_day_of_week_display }}</span>
+          <span style="color:var(--muted);">{{ slot.start_time|time:"g:i A" }} – {{ slot.end_time|time:"g:i A" }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color:var(--muted);">No availability set yet. Please contact the medical center.</p>
+  {% endif %}
+</div>
+{% endblock %}
