@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "demo-google-backend",
+    "company": "Google",
+    "position": "Backend Developer Intern",
+    "location": "Remote",
+    "platform": "LinkedIn",
+    "application_date": "2026-04-28",
+    "deadline": "2026-05-09",
+    "status": "interview",
+    "job_link": "https://careers.google.com",
+    "reminder": "Prepare for technical screening on Monday",
+    "interview_notes": "Focus on Python, APIs, and database design questions.",
+    "created_at": "2026-04-28T10:15:00",
+    "updated_at": "2026-04-30T18:20:00"
+  },
+  {
+    "_id": "demo-microsoft-data",
+    "company": "Microsoft",
+    "position": "Data Analyst",
+    "location": "Hybrid",
+    "platform": "Company Website",
+    "application_date": "2026-04-25",
+    "deadline": "2026-05-11",
+    "status": "applied",
+    "job_link": "https://careers.microsoft.com",
+    "reminder": "Check application portal after 5 days",
+    "interview_notes": "",
+    "created_at": "2026-04-25T14:10:00",
+    "updated_at": "2026-04-25T14:10:00"
+  },
+  {
+    "_id": "demo-amazon-cloud",
+    "company": "Amazon",
+    "position": "Cloud Support Associate",
+    "location": "On-site",
+    "platform": "Bdjobs",
+    "application_date": "2026-04-21",
+    "deadline": "2026-05-05",
+    "status": "rejected",
+    "job_link": "https://amazon.jobs",
+    "reminder": "",
+    "interview_notes": "Rejected after online assessment. Need more DSA practice.",
+    "created_at": "2026-04-21T09:00:00",
+    "updated_at": "2026-04-27T16:45:00"
+  },
+  {
+    "_id": "demo-shopify-frontend",
+    "company": "Shopify",
+    "position": "Junior Frontend Developer",
+    "location": "Remote",
+    "platform": "Referral",
+    "application_date": "2026-04-30",
+    "deadline": "2026-05-14",
+    "status": "selected",
+    "job_link": "https://www.shopify.com/careers",
+    "reminder": "Send updated portfolio and transcripts",
+    "interview_notes": "Final round cleared. Waiting for offer details.",
+    "created_at": "2026-04-30T12:30:00",
+    "updated_at": "2026-05-01T11:05:00"
+  }
+]

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Application Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-default-date="{{ today }}">
+  <main class="page-shell">
+    <section class="hero-card">
+      <div class="hero-copy">
+        <p class="eyebrow">Personal dashboard</p>
+        <h1>Track every application with clarity</h1>
+        <p class="hero-text">
+          Keep your job applications, reminders, interview notes, and deadlines in one simple workspace.
+        </p>
+        <div class="hero-points">
+          <span>Applications in one view</span>
+          <span>Follow-up reminders</span>
+          <span>Interview progress tracking</span>
+        </div>
+      </div>
+
+      <div class="hero-side">
+        <div class="hero-image-card">
+          <img
+            src="{{ url_for('static', filename='images/job-interview-conversation.avif') }}"
+            alt="Interview conversation illustration"
+          >
+          <div class="hero-image-overlay">
+            <span>Application workflow</span>
+            <strong>From applied to selected</strong>
+          </div>
+        </div>
+
+        <div class="status-grid">
+          <div class="status-card">
+            <span class="status-label">Database</span>
+            <strong>{{ db_status.database }}</strong>
+            <span class="status-badge {{ 'online' if db_status.connected else 'offline' }}">
+              {{ 'Connected' if db_status.connected else 'Local Demo Mode' }}
+            </span>
+          </div>
+          <div class="status-card">
+            <span class="status-label">Today</span>
+            <strong>{{ today }}</strong>
+            <span class="status-note">Single-user job tracker</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% if not db_status.connected %}
+    <section class="alert-card">
+      <strong>MongoDB is not active right now.</strong>
+      <p>The app is using local demo data so the interface still looks complete. Start MongoDB later to use the real database.</p>
+    </section>
+    {% endif %}
+
+    <section class="summary-grid" id="statsGrid">
+      <article class="summary-card">
+        <span>Total Applications</span>
+        <strong id="statTotal">0</strong>
+      </article>
+      <article class="summary-card">
+        <span>Applied</span>
+        <strong id="statApplied">0</strong>
+      </article>
+      <article class="summary-card">
+        <span>Interview</span>
+        <strong id="statInterview">0</strong>
+      </article>
+      <article class="summary-card">
+        <span>Selected</span>
+        <strong id="statSelected">0</strong>
+      </article>
+      <article class="summary-card">
+        <span>Rejected</span>
+        <strong id="statRejected">0</strong>
+      </article>
+      <article class="summary-card accent">
+        <span>Upcoming Deadlines</span>
+        <strong id="statDeadline">0</strong>
+      </article>
+    </section>
+
+    <section class="control-card">
+      <div class="toolbar">
+        <div class="search-group">
+          <input type="search" id="searchInput" placeholder="Search by company, position, location, or platform">
+          <button id="searchBtn" class="secondary-btn" type="button">Search</button>
+        </div>
+        <button class="primary-btn" type="button" id="addBtn">Add Application</button>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-chip active" type="button" data-filter="all">All</button>
+        {% for status in status_options %}
+        <button class="filter-chip" type="button" data-filter="{{ status }}">{{ status.title() }}</button>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="table-card">
+      <div class="table-header">
+        <div>
+          <p class="eyebrow">Application list</p>
+          <h2>Saved Applications</h2>
+          <p id="tableHint">Showing your latest saved job applications.</p>
+        </div>
+      </div>
+      <div id="feedback" class="feedback hidden"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Position</th>
+              <th>Applied</th>
+              <th>Status</th>
+              <th>Deadline</th>
+              <th>Reminder</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="jobTableBody">
+            <tr>
+              <td colspan="7" class="empty-state">Loading applications...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Application form</p>
+          <h2 id="modalTitle">Add New Application</h2>
+        </div>
+        <button class="icon-btn" id="closeModalBtn" type="button" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="jobForm" class="form-grid">
+        <div class="form-field">
+          <label for="fCompany">Company Name *</label>
+          <input type="text" id="fCompany" name="company" required>
+        </div>
+        <div class="form-field">
+          <label for="fPosition">Position *</label>
+          <input type="text" id="fPosition" name="position" required>
+        </div>
+        <div class="form-field">
+          <label for="fLocation">Location</label>
+          <input type="text" id="fLocation" name="location" placeholder="Remote / On-site / Hybrid">
+        </div>
+        <div class="form-field">
+          <label for="fPlatform">Platform</label>
+          <input type="text" id="fPlatform" name="platform" placeholder="LinkedIn, company site, referral">
+        </div>
+        <div class="form-field">
+          <label for="fDate">Application Date *</label>
+          <input type="date" id="fDate" name="application_date" required>
+        </div>
+        <div class="form-field">
+          <label for="fDeadline">Deadline</label>
+          <input type="date" id="fDeadline" name="deadline">
+        </div>
+        <div class="form-field">
+          <label for="fStatus">Status</label>
+          <select id="fStatus" name="status">
+            {% for status in status_options %}
+            <option value="{{ status }}">{{ status.title() }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="fLink">Job Link</label>
+          <input type="url" id="fLink" name="job_link" placeholder="https://example.com/job-post">
+        </div>
+        <div class="form-field full">
+          <label for="fReminder">Reminder</label>
+          <input type="text" id="fReminder" name="reminder" placeholder="Follow up next week">
+        </div>
+        <div class="form-field full">
+          <label for="fNotes">Interview Notes</label>
+          <textarea id="fNotes" name="interview_notes" rows="5" placeholder="Add interview rounds, recruiter notes, or salary details"></textarea>
+        </div>
+      </form>
+
+      <div class="modal-actions">
+        <button class="secondary-btn" id="cancelBtn" type="button">Cancel</button>
+        <button class="primary-btn" id="saveBtn" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="notesOverlay">
+    <div class="modal-card small">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Application notes</p>
+          <h2>Interview Notes</h2>
+        </div>
+        <button class="icon-btn" id="closeNotesBtn" type="button" aria-label="Close notes modal">&times;</button>
+      </div>
+      <div id="notesContent" class="notes-box"></div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
